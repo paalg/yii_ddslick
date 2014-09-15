@@ -73,7 +73,6 @@ class Ddslick extends CWidget {
             echo "<select id=\"{$this->id}\" name=\"$this->name\"></select>";
         }
         else {
-            // Output the container first and then the javscript
             echo "<div id=\"{$this->id}\" name=\"{$this->id}\"></div>";                
         }
         echo $js;

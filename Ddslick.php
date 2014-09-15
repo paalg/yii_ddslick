@@ -4,6 +4,10 @@
  * Extension for Yii Framework v1.1.* for jQuery plugin ddSlick
  * http://designwithpc.com/Plugins/ddSlick
  * 
+ * This extension has had the ddslick script edited to fix a bug where select
+ * element does not submit the value. Take a look at the fix description from user 
+ * Bonjiro:
+ * http://stackoverflow.com/questions/11453578/ddslick-select-options-wonst-post-value-of-selected-option-jquery-plugin
  * 
  */
 class Ddslick extends CWidget {
@@ -21,6 +25,12 @@ class Ddslick extends CWidget {
     public $data;
     
     /**
+     * Using select element instead of div?
+     * @var boolean
+     */
+    public $select = true;
+    
+    /**
      * Options for the plugin. Please note that the data part is put in 
      * the data attribute.
      * @var array
@@ -28,12 +38,22 @@ class Ddslick extends CWidget {
     public $options = array();
     
     /**
+     * If element type is select, then this attribute specifies the name
+     * of that element. If not set, then defaults to the same as id.
+     * @var string
+     */
+    public $name;
+    
+    /**
      * Initialize the extension
      */
     public function init() {
         $cs = Yii::app()->getClientScript();
         $assets = Yii::app()->getAssetManager()->publish(dirname(__FILE__) . '/assets');
-        $cs->registerScriptFile($assets . '/jquery.ddslick.min.js');        
+        
+        // Using the modified non-minified script because of the bugfix introduced into it
+        //$cs->registerScriptFile($assets . '/jquery.ddslick.min.js');        
+        $cs->registerScriptFile($assets . '/jquery.ddslick.js');
     }
     
     /**
@@ -47,9 +67,15 @@ class Ddslick extends CWidget {
         $js = '<script type="text/javascript">';                
         $js .= "$(\"#{$this->id}\").ddslick($json);";
         $js .= '</script>';
-               
-        // Output the container first and then the javscript
-        echo "<div id=\"{$this->id}\"></div>";
+
+        if ($this->select) {
+            if (is_null($this->name)) { $this->name = $this->id; } // if name not given
+            echo "<select id=\"{$this->id}\" name=\"$this->name\"></select>";
+        }
+        else {
+            // Output the container first and then the javscript
+            echo "<div id=\"{$this->id}\" name=\"{$this->id}\"></div>";                
+        }
         echo $js;
     }
 }
